@@ -21,17 +21,7 @@ describe("/api/unknown-endpoint", () => {
   });
 });
 
-describe("/api/status-check", () => {
-    test("GET 200: responds with 200 status", () => {
-      return request(app)
-        .get("/api/status-check")
-        .expect(200)
-        .then(({ body }) => {
-          const { msg } = body;
-          expect(msg).toBe("server is online");
-        });
-    });
-  });
+
 
 describe("/api/topics", () => {
   describe("GET", () => {

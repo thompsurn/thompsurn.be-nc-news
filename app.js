@@ -12,9 +12,6 @@ app.use(express.json());
 app.get("/api/healthcheck", healthCheck);
 app.get("/api/topics", getTopics);
 app.get("/api", getEndpoints);
-app.get("/api/status-check", healthCheck);
+app.get("/api", getEndpoints);
 
 module.exports = app;
-
-
-
