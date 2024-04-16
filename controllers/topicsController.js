@@ -1,4 +1,9 @@
-const { selectTopics: fetchTopicsData, selectArticleById } = require("../models/topicsModel");
+const { 
+  selectTopics: fetchTopicsData, 
+  selectArticleById, 
+  selectArticles, 
+  countCommentsByArticleId
+} = require("../models/topicsModel");
 const endpoints = require("../endpoints.json");
 
 
@@ -42,4 +47,34 @@ function getArticleById(req, res, next) {
     .catch(next);
 }
 
-module.exports = { healthCheck, getTopics, getEndpoints, getArticleById };
+//getArticles
+function getArticles(req, res, next) {
+  if (req.query.testError === "database") {
+    return next(new Error("Database error"));
+  }
+
+  selectArticles()
+    .then((articles) => {
+      const articleIds = articles.map((article) => article.article_id);
+      return Promise.all(
+        articleIds.map((article_id) => countCommentsByArticleId(article_id))
+      ).then((commentCounts) => {
+        const articlesWithComments = articles.map((article, index) => ({
+          ...article,
+          comment_count: commentCounts[index],
+        }));
+
+        const sortedArticles = articlesWithComments.sort((a, b) => {
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        const articlesWithoutBody = sortedArticles.map(({ body, ...rest }) => rest);
+
+        res.status(200).send({ articles: articlesWithoutBody });
+      });
+    })
+    .catch(next);
+}
+
+
+module.exports = { healthCheck, getTopics, getEndpoints, getArticleById, getArticles };
