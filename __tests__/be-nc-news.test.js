@@ -285,6 +285,28 @@ describe('PATCH /api/articles/:article_id', () => {
   });
 });
 
+describe("DELETE /api/comments/:comment_id", () => {
+  test("should delete the given comment by comment_id", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204);
+  });
 
+  test("should return 404 for non-existing comment_id", () => {
+    return request(app)
+      .delete("/api/comments/999")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("Comment not found");
+      });
+  });
 
-
+  test("should return 400 for invalid comment_id format", () => {
+    return request(app)
+      .delete("/api/comments/invalidId")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Invalid comment_id format");
+      });
+  });
+});
