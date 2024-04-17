@@ -40,14 +40,19 @@ function getArticleById(req, res, next) {
     return res.status(400).send({ msg: "Invalid article_id format" });
   }
 
-  selectArticleById(article_id)
-    .then((article) => {
+  Promise.all([
+    selectArticleById(article_id),
+    countCommentsByArticleId(article_id)
+  ])
+    .then(([article, comment_count]) => {
       if (!article) {
         return res.status(404).send({ msg: "Article not found" });
       }
+      article.comment_count = comment_count;
       res.status(200).send({ article });
     })
     .catch(next);
+
 }
 
 //getArticles

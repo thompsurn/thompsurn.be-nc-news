@@ -79,9 +79,6 @@ describe('GET /api', () => {
     });
   });
 
-describe('GET /api/articles/:article_id', () => {
-    const request = require("supertest");
-const app = require("../app");
 
 describe("GET /api/articles/:article_id", () => {
   
@@ -149,8 +146,18 @@ describe("GET /api/articles/:article_id", () => {
         );
       });
   });
+  test("should return an article with comment_count", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then((res) => {
+        const { article } = res.body;
+        expect(article).toHaveProperty("comment_count");
+        expect(typeof article.comment_count).toBe("string");
+      });
+  });
 });
-});
+
 
 describe('GET /api/articles', () => {
     test("should return an array of articles with the correct properties", () => {
