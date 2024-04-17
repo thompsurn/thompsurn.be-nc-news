@@ -16,14 +16,20 @@ function selectArticleById(article_id) {
     });
 }
 
-function selectArticles() {
-  return db.query(`
-    SELECT article_id, title, topic, created_at, votes, article_img_url, author
-    FROM articles
-  `).then(({ rows }) => {
-    return rows;
+function selectArticles(topic) {
+  let query = `SELECT articles.*, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id`;
+
+  const params = [];
+
+  if (topic) {
+    query += ` HAVING articles.topic = $1`;
+    params.push(topic);
+  }
+  return db.query(query, params).then((result) => {
+    return result.rows;
   });
 }
+
 
 function countCommentsByArticleId(article_id) {
   return db.query(`
@@ -48,6 +54,8 @@ const updateArticleVotes = (article_id, inc_votes) => {
       return rows[0];
     });
 };
+
+
 
 
 
