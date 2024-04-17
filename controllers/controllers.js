@@ -138,6 +138,25 @@ const patchArticleById = (req, res, next) => {
 };
 
 
+// deleteCommentById
+function deleteCommentById(req, res, next) {
+  const comment_id = req.params.comment_id;
+
+  db.query(`DELETE FROM comments WHERE comment_id = $1 RETURNING *;`, [comment_id])
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return next({ status: 404, msg: "Comment not found" });
+      }
+      res.status(204).send();
+    })
+    .catch((err) => {
+      if (err.code === "22P02" || err.code === "23503") {
+        next({ status: 400, msg: "Invalid comment_id format" });
+      } else {
+        next(err);
+      }
+    });
+}
 
 
 
@@ -150,5 +169,6 @@ module.exports = { healthCheck,
   getCommentsByArticleId, 
   addCommentByArticleId, 
   addCommentByArticleId,
-  patchArticleById
+  patchArticleById,
+  deleteCommentById
 };
