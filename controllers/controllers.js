@@ -100,5 +100,35 @@ function getCommentsByArticleId(req, res, next) {
     });
 }
 
+//addCommentByArticleId
+const addCommentByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  const { username, body } = req.body;
 
-module.exports = { healthCheck, getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId };
+  if (!username || !body) {
+    return next({ status: 400, msg: "Username and body are required" });
+  }
+
+  db.query(
+    `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;`,
+    [article_id, username, body]
+  )
+    .then(({ rows }) => {
+      const [comment] = rows;
+      if (!comment) return Promise.reject({ status: 404, msg: "Article not found" });
+      res.status(201).send({ comment });
+    })
+    .catch(next);
+};
+
+
+
+module.exports = { healthCheck, 
+  getTopics, 
+  getEndpoints, 
+  getArticleById, 
+  getArticles, 
+  getCommentsByArticleId, 
+  addCommentByArticleId, 
+  addCommentByArticleId
+};

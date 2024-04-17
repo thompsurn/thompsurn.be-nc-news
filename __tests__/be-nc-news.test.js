@@ -234,3 +234,33 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("should add a comment to an article and respond with the posted comment", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "butter_bridge", body: "This is a test comment" })
+      .expect(201)
+      .then((res) => {
+        const { comment } = res.body;
+        expect(comment).toMatchObject({
+          article_id: 1,
+          author: "butter_bridge",
+          body: "This is a test comment",
+        });
+      });
+  });
+
+  test("should return a 400 status code if username or body is missing", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "butter_bridge" })
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Username and body are required");
+      });
+  });
+});
+
+
+
