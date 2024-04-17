@@ -3,8 +3,10 @@ const {
   selectArticleById, 
   selectArticles, 
   countCommentsByArticleId
-} = require("../models/topicsModel");
+} = require("../models/models");
 const endpoints = require("../endpoints.json");
+
+const db = require("../db/connection");
 
 
 //healthcheck
@@ -49,9 +51,6 @@ function getArticleById(req, res, next) {
 
 //getArticles
 function getArticles(req, res, next) {
-  if (req.query.testError === "database") {
-    return next(new Error("Database error"));
-  }
 
   selectArticles()
     .then((articles) => {
@@ -77,4 +76,29 @@ function getArticles(req, res, next) {
 }
 
 
-module.exports = { healthCheck, getTopics, getEndpoints, getArticleById, getArticles };
+//getCommentsByArticleId
+
+function getCommentsByArticleId(req, res, next) {
+  const article_id = req.params.article_id;
+
+  db.query(
+    `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`,
+    [article_id]
+  )
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return next({ status: 404, msg: "Comments not found" });
+      }
+      res.status(200).send({ comments: rows });
+    })
+    .catch((err) => {
+      if (err.code === "22P02" || err.code === "23503") {
+        next({ status: 400, msg: "Invalid article_id format" });
+      } else {
+        next(err);
+      }
+    });
+}
+
+
+module.exports = { healthCheck, getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId };

@@ -41,6 +41,20 @@
         "article_img_url": "https://t4.ftcdn.net/jpg/03/32/75/39/360_F_332753934_tBacXEgxnVplFBRyKbCif49jh0Wz89ns.jpg"
       }
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves an array of comments for a given article_id, sorted by date in descending order",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 1,
+          "votes": 16,
+          "created_at": "2017-11-22T12:36:03.389Z",
+          "author": "butter_bridge",
+          "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          "article_id": 1
+        }
+      ]
+    }
   }
-  
 }
