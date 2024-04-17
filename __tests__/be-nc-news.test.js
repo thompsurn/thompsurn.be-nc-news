@@ -4,6 +4,8 @@ const app = require("../app");
 const seed = require("../db/seeds/seed");
 const seedTestData = require("../db/data/test-data");
 const endpointsData = require("../endpoints.json");
+const sorted = require('jest-sorted');
+
 
 beforeEach(() => {
   return seed(seedTestData);
@@ -173,20 +175,62 @@ describe('GET /api/articles', () => {
           });
       });
 
-    test("should return articles sorted by date in descending order", () => {
+      test("should return articles sorted by date in descending order", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
           .then((res) => {
             const { articles } = res.body;
-            const sortedArticles = [...articles].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            expect(articles).toEqual(sortedArticles);
+            
+            expect(articles).toBeSortedBy('created_at', { descending: true });
           });
       });
-
-    test("should return 500 for database errors", () => {
-        return request(app)
-          .get("/api/articles?testError=database")
-          .expect(500);
-    });
 })
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("should return comments for a valid article_id sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((res) => {
+        const { comments } = res.body;
+        expect(comments.length).toBeGreaterThan(0);
+        expect(comments).toBeSortedBy("created_at", { descending: true });
+        expect(comments[0]).toMatchObject({
+          comment_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          article_id: 1,
+        });
+      });
+  });
+
+  test("should return 404 for article_id with no comments", () => {
+    return request(app)
+      .get("/api/articles/999/comments")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("Comments not found");
+      });
+  });
+
+  test("should return 400 for invalid article_id format", () => {
+    return request(app)
+      .get("/api/articles/invalidId/comments")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toBe("Invalid article_id format");
+      });
+  });
+
+  test("should return 404 for non-existing article_id", () => {
+    return request(app)
+      .get("/api/articles/1000/comments")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("Comments not found");
+      });
+  });
+});

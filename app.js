@@ -4,8 +4,9 @@ const {
   getTopics,
   getEndpoints,
   getArticleById,
-  getArticles
-} = require("./controllers/topicsController");
+  getArticles,
+  getCommentsByArticleId
+} = require("./controllers/controllers");
 
 const app = express();
 
@@ -23,5 +24,12 @@ app.get("/api/articles/:article_id", getArticleById);
 
 app.get("/api/articles", getArticles);
 
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+
+
+app.use((err, req, res, next) => {
+  const { status = 500, msg = "Internal Server Error" } = err;
+  res.status(status).send({ msg });
+});
 
 module.exports = app;
