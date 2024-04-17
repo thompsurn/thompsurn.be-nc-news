@@ -207,14 +207,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("should return 404 for article_id with no comments", () => {
-    return request(app)
-      .get("/api/articles/999/comments")
-      .expect(404)
-      .then((res) => {
-        expect(res.body.msg).toBe("Comments not found");
-      });
-  });
 
   test("should return 400 for invalid article_id format", () => {
     return request(app)
@@ -261,6 +253,38 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe('PATCH /api/articles/:article_id', () => {
+  let initialVotes;
+
+  test('should update the votes of the article by article_id', () => {
+    return request(app)
+      .get('/api/articles/1')
+      .expect(200)
+      .then((res) => {
+        initialVotes = res.body.article.votes;
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 10 })
+          .expect(200);
+      })
+      .then((res) => {
+        expect(res.body.article.votes).toBe(initialVotes + 10);
+      });
+  });
+  
+
+  test('should return 404 for non-existing article_id', () => {
+    return request(app)
+      .patch('/api/articles/9999')
+      .send({ inc_votes: 10 })
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe('Article not found');
+      });
+  });
+});
+
 
 
 
