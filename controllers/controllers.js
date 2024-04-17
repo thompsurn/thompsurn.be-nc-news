@@ -158,6 +158,19 @@ function deleteCommentById(req, res, next) {
     });
 }
 
+// getAllUsers
+function getAllUsers(req, res, next) {
+  db.query(`SELECT username, name, avatar_url FROM users;`)
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return next({ status: 404, msg: "No users found" });
+      }
+      res.status(200).send({ users: rows });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
 
 
 
@@ -170,5 +183,6 @@ module.exports = { healthCheck,
   addCommentByArticleId, 
   addCommentByArticleId,
   patchArticleById,
-  deleteCommentById
+  deleteCommentById,
+  getAllUsers
 };

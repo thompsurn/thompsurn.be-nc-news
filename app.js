@@ -8,7 +8,8 @@ const {
   getCommentsByArticleId,
   addCommentByArticleId,
   patchArticleById,
-  deleteCommentById
+  deleteCommentById,
+  getAllUsers
 } = require("./controllers/controllers");
 
 const app = express();
@@ -35,6 +36,7 @@ app.patch('/api/articles/:article_id', patchArticleById);
 
 app.delete("/api/comments/:comment_id", deleteCommentById);
 
+app.get('/api/users', getAllUsers);
 
 app.use((err, req, res, next) => {
   const { status = 500, msg = "Internal Server Error" } = err;
