@@ -52,9 +52,14 @@ function getArticleById(req, res, next) {
 
 //getArticles
 function getArticles(req, res, next) {
+  const { topic } = req.query;
 
-  selectArticles()
+  selectArticles(topic)
     .then((articles) => {
+      if (!articles.length) {
+        return Promise.reject({ status: 404, msg: "No articles found for the specified topic" });
+      }
+
       const articleIds = articles.map((article) => article.article_id);
       return Promise.all(
         articleIds.map((article_id) => countCommentsByArticleId(article_id))

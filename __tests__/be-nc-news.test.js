@@ -328,3 +328,39 @@ describe('GET /api/users', () => {
       });
   });
 });
+
+
+describe("GET /api/articles", () => {
+  test("should return articles filtered by topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then((res) => {
+        const { articles } = res.body;
+        expect(articles.length).toBeGreaterThan(0);
+        articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+
+  test("should return all articles if topic query is omitted", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((res) => {
+        const { articles } = res.body;
+        expect(articles.length).toBeGreaterThan(0);
+      });
+  });
+
+  test("should return 404 if no articles found for the specified topic", () => {
+    return request(app)
+      .get("/api/articles?topic=unknown_topic")
+      .expect(404)
+      .then((res) => {
+        const { msg } = res.body;
+        expect(msg).toBe("No articles found for the specified topic");
+      });
+  });
+});
