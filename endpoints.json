@@ -42,6 +42,14 @@
       }
     }
   },
+  "/api/articles/:article_id": {
+    "PATCH": {
+      "description": "Update an article by article_id.",
+      "requestBody": {
+        "inc_votes": "The number by which to increment the article's votes. Positive for upvote, negative for downvote."
+      }
+    }
+  },
   "GET /api/articles/:article_id/comments": {
     "description": "serves an array of comments for a given article_id, sorted by date in descending order",
     "exampleResponse": {
